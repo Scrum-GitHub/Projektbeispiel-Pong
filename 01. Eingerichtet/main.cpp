@@ -43,12 +43,15 @@ int main()
     // Erstellen Sie einen Booleschen Wert, um zu überprüfen, ob das Spiel gestartet wurde
     bool gameStarted = false;
 
-    Ball* ball = new Ball(200, 200);
-
+    Ball* ball = new Ball(200, 200, 5);
+   
     // Spiel-Schleife
-    while (meinSpieleFenster->isOpen()) {
-        Event event;
+    while (meinSpieleFenster->isOpen()) {   // Solange das Spielfenster geöffnet ist, mache ....
+        
+        // User-Eingaben als "Ereginisse" auswerten:
+        Event event;                        // Um Ereignisse abzurufen, die vom Benutzer ausgelöst wurden, wie z.B. Tastendrücke, Mausklicks oder das Schließen des Fensters.
         while (meinSpieleFenster->pollEvent(event)) {
+           // Überprüft, ob das Spielfenster geschlossen wird
             if (event.type == Event::Closed)
                 meinSpieleFenster->close();
 
@@ -57,7 +60,6 @@ int main()
                 // Überprüfen Sie, ob die Maus auf der Schaltfläche ist
                 if (startButton.getGlobalBounds().contains(meinSpieleFenster->mapPixelToCoords(Mouse::getPosition(*meinSpieleFenster)))) {
                     gameStarted = true;
-                    break;
                 }
 
                 // Überprüfen Sie, ob die Maus auf dem Beenden-Button ist
@@ -65,22 +67,40 @@ int main()
                     meinSpieleFenster->close();
                 }
             } 
-           
         }
 
-        //meinSpieleFenster.clear();
+        // Spielfeldbegrenzung
+        // Ballumkehr beim Treffen des oberer und unterer Randes
+        if (ball->getPosition().top             // gibt die y-Position des oberen Randes des Balls zurück
+            + ball->getPosition().height        // ist die Höhe des Balls
+            > meinSpieleFenster->getSize().y    // ist die Höhe des Fensters
+            || ball->getPosition().top < 0) {   // y-Achse Position 0, also ganz links 
+            ball->reboundBatOrTop();            // Dann Richtungsänderung
+        }
+        
+        // Ballumkehr beim Treffen des linken und rechten Randes
+        if (ball->getPosition().left < 0        // wenn Ball kleiner als 0 ist, berührt der Ball den linken Rand des Fensters
+            || ball->getPosition().left + ball->getPosition().width    // größer als die Breite des Fensters + Ballbreite 
+        > meinSpieleFenster->getSize().x) {     // berührt der Ball den rechten Rand des Fensters
+            ball->reboundSides();
+        }
 
-        // Zeichnen Sie die Schaltfläche nur, wenn das Spiel nicht gestartet wurde
+
+        // Start-Menue wird gezeichnet
         if (!gameStarted) {
+            meinSpieleFenster->clear();
             meinSpieleFenster->draw(startButton);
             meinSpieleFenster->draw(startButtonText);
             
-            gameplay(meinSpieleFenster, ball);
-
-        } 
             meinSpieleFenster->draw(exitButton);
             meinSpieleFenster->draw(exitButtonText);
-        
+            meinSpieleFenster->display();
+        }
+        else {
+         // Spiel wird gezeichnet      
+            gameplay(meinSpieleFenster, ball);
+
+        }
     }
 
     return 0;
