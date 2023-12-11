@@ -1,14 +1,20 @@
 #include "Ball.h"
+#include "Schlaeger.h"
 #include <ctime>
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <string>
 
 using namespace sf;
-void gameplay(sf::RenderWindow* meinSpieleFenster, Ball* ball);
+void gameplay(sf::RenderWindow* meinSpieleFenster, Ball* ball, Schlaeger* schlaegerL, Schlaeger* schlaegerR);
 
 int main()
 {   
+    // 
+    Ball* ball = new Ball(400, 300, 5);
+    Schlaeger* schlaegerR = new Schlaeger(0,275,10,150);
+    Schlaeger* schlaegerL = new Schlaeger(790, 275, 10, 150);
+
     // Spielefenster erstellen
     RenderWindow* meinSpieleFenster = new RenderWindow(VideoMode(800, 600), "Pong");
     meinSpieleFenster->setFramerateLimit(30);
@@ -42,8 +48,6 @@ int main()
 
     // Erstellen Sie einen Booleschen Wert, um zu überprüfen, ob das Spiel gestartet wurde
     bool gameStarted = false;
-
-    Ball* ball = new Ball(200, 200, 5);
    
     // Spiel-Schleife
     while (meinSpieleFenster->isOpen()) {   // Solange das Spielfenster geöffnet ist, mache ....
@@ -69,6 +73,26 @@ int main()
             } 
         }
 
+        // Bewege den SchlägerL nach oben, wenn die obere Pfeiltaste gedrückt wird
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+            schlaegerL->moveUp();
+        }
+
+        // Bewege den SchlägerL nach unten, wenn die untere Pfeiltaste gedrückt wird
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+            schlaegerL->moveDown(meinSpieleFenster->getSize().y);
+        }
+
+        // Bewege den SchlägerR nach oben, wenn die obere Pfeiltaste gedrückt wird
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+            schlaegerR->moveUp();
+        }
+
+        // Bewege den SchlägerR nach unten, wenn die untere Pfeiltaste gedrückt wird
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+            schlaegerR->moveDown(meinSpieleFenster->getSize().y);
+        }
+
         // Spielfeldbegrenzung
         // Ballumkehr beim Treffen des oberer und unterer Randes
         if (ball->getPosition().top             // gibt die y-Position des oberen Randes des Balls zurück
@@ -78,11 +102,31 @@ int main()
             ball->reboundBatOrTop();            // Dann Richtungsänderung
         }
         
+        // Der Ball prallt ab, wenn er einen Schläger trifft.
+        if (ball->getGlobalBounds().intersects(schlaegerL->getPosition())||
+            ball->getGlobalBounds().intersects(schlaegerR->getPosition()))
+        {
+            // Ball abprallen lassen
+            ball->reboundSides();
+        }
+
+
         // Ballumkehr beim Treffen des linken und rechten Randes
         if (ball->getPosition().left < 0        // wenn Ball kleiner als 0 ist, berührt der Ball den linken Rand des Fensters
             || ball->getPosition().left + ball->getPosition().width    // größer als die Breite des Fensters + Ballbreite 
         > meinSpieleFenster->getSize().x) {     // berührt der Ball den rechten Rand des Fensters
+            // Ballumkehren
             ball->reboundSides();
+            // Punkte verteilen und Ball zurücksetzen
+            if (ball->getPosition().left < 0) {
+                schlaegerR->getPunkteObj()->erhoehe();
+                ball->setPosition(400, 300);
+            }
+            if (ball->getPosition().left + ball->getPosition().width > meinSpieleFenster->getSize().x) {
+                schlaegerL->getPunkteObj()->erhoehe();
+                ball->setPosition(400, 300);
+            }
+            std::cout << "Rechtes: " << schlaegerR->getPunkteObj()->getPunkte() << " Links: " << schlaegerL->getPunkteObj()->getPunkte() << std::endl;
         }
 
 
@@ -98,7 +142,7 @@ int main()
         }
         else {
          // Spiel wird gezeichnet      
-            gameplay(meinSpieleFenster, ball);
+            gameplay(meinSpieleFenster, ball, schlaegerL, schlaegerR);
 
         }
     }
@@ -106,9 +150,11 @@ int main()
     return 0;
 }
 
-void gameplay(sf::RenderWindow* meinSpieleFenster, Ball* ball) {
+void gameplay(sf::RenderWindow* meinSpieleFenster, Ball* ball, Schlaeger* schlaegerL, Schlaeger* schlaegerR) {
     ball->update();
     meinSpieleFenster->clear();
+    meinSpieleFenster->draw(schlaegerR->getShape());
+    meinSpieleFenster->draw(schlaegerL->getShape());
     meinSpieleFenster->draw(ball->getShape());
     meinSpieleFenster->display();
 }

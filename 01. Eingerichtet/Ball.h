@@ -7,8 +7,8 @@ class Ball {
 private:
     sf::Vector2f position;
     sf::CircleShape ballShape;
-    float xVelocity = 0.0f;
-    float yVelocity = 0.0f;
+    float xSpeed = 0.0f;
+    float ySpeed = 0.0f;
 
 public:
     Ball(float startX, float startY, float radius) {
@@ -17,7 +17,7 @@ public:
 
         ballShape.setRadius(radius);
         ballShape.setPosition(position);
-        this->setRandomSpeed(25.0f); // Der Ball bewegt sich in eine zufällige Richtung.
+        this->setRandomSpeed(15.0f); // Der Ball bewegt sich in eine zufällige Richtung.
     }
 
     sf::FloatRect getPosition() {
@@ -28,12 +28,17 @@ public:
         return ballShape;
     }
 
-    float getXVelocity() {
-        return xVelocity;
+    // Methode zum Abrufen der globalen Grenzen des Balls
+    sf::FloatRect getGlobalBounds() {
+        return ballShape.getGlobalBounds();
+    }
+
+    float getXSpeed() {
+        return xSpeed;
     }
 
     void reboundSides() { //Bewegungsrichtung des Balls in der x-Achse umkehrt
-        xVelocity = -xVelocity;
+        xSpeed = -xSpeed;
     }
     /*
     Diese Methode ändert die Richtung der y-Geschwindigkeit des Balls, 
@@ -41,12 +46,17 @@ public:
     y-Richtung bewegt wird.
     */
     void reboundBatOrTop() { // Richtungsänderung vom "Schläger" oder "Oben"
-        yVelocity = -yVelocity;
+        ySpeed = -ySpeed;
+    }
+
+    void setPosition(float startX, float startY) {
+        position.x = startX;
+        position.y = startY;
     }
 
     void update() {
-        position.y += yVelocity;
-        position.x += xVelocity;
+        position.y += ySpeed;
+        position.x += xSpeed;
 
         ballShape.setPosition(position);
     }
@@ -56,7 +66,7 @@ public:
         std::mt19937 gen(rd()); // Mersenne-Twister-Generator verwenden
         std::uniform_real_distribution<> dis(-1.0, 1.0); // Verteilung definieren
 
-        xVelocity = speed * dis(gen); // Zufällige x-Geschwindigkeit setzen
-        yVelocity = speed * dis(gen); // Zufällige y-Geschwindigkeit setzen
+        xSpeed = speed * dis(gen); // Zufällige x-Geschwindigkeit setzen
+        ySpeed = speed * dis(gen); // Zufällige y-Geschwindigkeit setzen
     }
 };
