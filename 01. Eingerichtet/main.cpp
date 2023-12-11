@@ -12,21 +12,35 @@ int main()
     RenderWindow meinSpieleFenster(VideoMode(800, 600), "Pong");
     meinSpieleFenster.setFramerateLimit(30);
 
-    // Erstellen Sie eine Schaltfläche
-    RectangleShape buttonStart(Vector2f(200, 100));
-    buttonStart.setFillColor(Color::Green);
-    buttonStart.setPosition(300, 250); // Positionieren Sie die Schaltfläche in der Mitte des Fensters
+    // Erstellen Sie eine Schaltfläche zum Starten des Spiels
+    RectangleShape startButton(Vector2f(200, 100));
+    startButton.setFillColor(Color::Green);
+    startButton.setPosition(300, 250); // Positionieren Sie die Schaltfläche in der Mitte des Fensters
     
+    // Erstellen Sie eine Schaltfläche zum Beenden des Spiels
+    sf::RectangleShape exitButton(sf::Vector2f(200, 100));
+    exitButton.setFillColor(sf::Color::Red);
+    exitButton.setPosition(300, 500); 
+
     // Schriftart
     Font font;
     if (!font.loadFromFile("fonts/arial.ttf")) 
         std::cout << "Fehlermeldung: Schriftart Arial konnte nicht geladen werden!" << std::endl;
 
-    // Buttontext 
-    Text buttonText("Start das Spiel!", font);
-    buttonText.setCharacterSize(24);
-    buttonText.setFillColor(Color::Black);
-    buttonText.setPosition(buttonStart.getPosition().x + 20, buttonStart.getPosition().y + 30); // Positionieren Sie den Text in der Mitte des Buttons
+    // Start Buttontext 
+    Text startButtonText("Start", font);
+    startButtonText.setCharacterSize(24);
+    startButtonText.setFillColor(Color::Black);
+    startButtonText.setPosition(startButton.getPosition().x + 20, startButton.getPosition().y + 30); // Positionieren Sie den Text in der Mitte des Buttons
+
+    // Exit Buttontext 
+    Text exitButtonText("Exit", font);
+    exitButtonText.setCharacterSize(24);
+    exitButtonText.setFillColor(Color::Black);
+    exitButtonText.setPosition(exitButton.getPosition().x + 20, exitButton.getPosition().y + 30); // Positionieren Sie den Text in der Mitte des Buttons
+
+
+
 
     // Erstellen Sie einen Booleschen Wert, um zu überprüfen, ob das Spiel gestartet wurde
     bool gameStarted = false;
@@ -41,8 +55,13 @@ int main()
             // Überprüfen Sie, ob die linke Maustaste gedrückt wurde
             if (Mouse::isButtonPressed(Mouse::Left)) {
                 // Überprüfen Sie, ob die Maus auf der Schaltfläche ist
-                if (buttonStart.getGlobalBounds().contains(meinSpieleFenster.mapPixelToCoords(Mouse::getPosition(meinSpieleFenster)))) {
+                if (startButton.getGlobalBounds().contains(meinSpieleFenster.mapPixelToCoords(Mouse::getPosition(meinSpieleFenster)))) {
                     gameStarted = true;
+                }
+
+                // Überprüfen Sie, ob die Maus auf dem Beenden-Button ist
+                if (exitButton.getGlobalBounds().contains(meinSpieleFenster.mapPixelToCoords(Mouse::getPosition(meinSpieleFenster)))) {
+                    meinSpieleFenster.close();
                 }
             }
         }
@@ -51,11 +70,16 @@ int main()
 
         // Zeichnen Sie die Schaltfläche nur, wenn das Spiel nicht gestartet wurde
         if (!gameStarted) {
-            meinSpieleFenster.draw(buttonStart);
-            meinSpieleFenster.draw(buttonText);
+            meinSpieleFenster.draw(startButton);
+            meinSpieleFenster.draw(startButtonText);
         }
 
         // Hier könnte die Spiellogik hinzugefügt werden
+        
+        meinSpieleFenster.draw(exitButton);
+        meinSpieleFenster.draw(exitButtonText);
+
+        
 
         meinSpieleFenster.display();
     }
