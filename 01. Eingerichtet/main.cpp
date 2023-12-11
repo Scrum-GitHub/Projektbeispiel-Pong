@@ -1,15 +1,17 @@
-
+#include "Ball.h"
+#include <ctime>
+#include <iostream>
 #include <SFML/Graphics.hpp>
 #include <string>
 
 using namespace sf;
-
+void gameplay(sf::RenderWindow* meinSpieleFenster, Ball* ball);
 
 int main()
 {   
     // Spielefenster erstellen
-    RenderWindow meinSpieleFenster(VideoMode(800, 600), "Pong");
-    meinSpieleFenster.setFramerateLimit(30);
+    RenderWindow* meinSpieleFenster = new RenderWindow(VideoMode(800, 600), "Pong");
+    meinSpieleFenster->setFramerateLimit(30);
 
     // Erstellen Sie eine Schaltfläche zum Starten des Spiels
     RectangleShape startButton(Vector2f(200, 100));
@@ -17,8 +19,8 @@ int main()
     startButton.setPosition(300, 250); // Positionieren Sie die Schaltfläche in der Mitte des Fensters
     
     // Erstellen Sie eine Schaltfläche zum Beenden des Spiels
-    sf::RectangleShape exitButton(sf::Vector2f(200, 100));
-    exitButton.setFillColor(sf::Color::Red);
+    RectangleShape exitButton(Vector2f(200, 100));
+    exitButton.setFillColor(Color::Red);
     exitButton.setPosition(300, 500); 
 
     // Schriftart
@@ -38,60 +40,55 @@ int main()
     exitButtonText.setFillColor(Color::Black);
     exitButtonText.setPosition(exitButton.getPosition().x + 20, exitButton.getPosition().y + 30); // Positionieren Sie den Text in der Mitte des Buttons
 
-
-
-
     // Erstellen Sie einen Booleschen Wert, um zu überprüfen, ob das Spiel gestartet wurde
     bool gameStarted = false;
 
+    Ball* ball = new Ball(200, 200);
+
     // Spiel-Schleife
-    while (meinSpieleFenster.isOpen()) {
+    while (meinSpieleFenster->isOpen()) {
         Event event;
-        while (meinSpieleFenster.pollEvent(event)) {
+        while (meinSpieleFenster->pollEvent(event)) {
             if (event.type == Event::Closed)
-                meinSpieleFenster.close();
+                meinSpieleFenster->close();
 
             // Überprüfen Sie, ob die linke Maustaste gedrückt wurde
             if (Mouse::isButtonPressed(Mouse::Left)) {
                 // Überprüfen Sie, ob die Maus auf der Schaltfläche ist
-                if (startButton.getGlobalBounds().contains(meinSpieleFenster.mapPixelToCoords(Mouse::getPosition(meinSpieleFenster)))) {
+                if (startButton.getGlobalBounds().contains(meinSpieleFenster->mapPixelToCoords(Mouse::getPosition(*meinSpieleFenster)))) {
                     gameStarted = true;
+                    break;
                 }
 
                 // Überprüfen Sie, ob die Maus auf dem Beenden-Button ist
-                if (exitButton.getGlobalBounds().contains(meinSpieleFenster.mapPixelToCoords(Mouse::getPosition(meinSpieleFenster)))) {
-                    meinSpieleFenster.close();
+                if (exitButton.getGlobalBounds().contains(meinSpieleFenster->mapPixelToCoords(Mouse::getPosition(*meinSpieleFenster)))) {
+                    meinSpieleFenster->close();
                 }
-            }
+            } 
+           
         }
 
-        meinSpieleFenster.clear();
+        //meinSpieleFenster.clear();
 
         // Zeichnen Sie die Schaltfläche nur, wenn das Spiel nicht gestartet wurde
         if (!gameStarted) {
-            meinSpieleFenster.draw(startButton);
-            meinSpieleFenster.draw(startButtonText);
-        }
+            meinSpieleFenster->draw(startButton);
+            meinSpieleFenster->draw(startButtonText);
+            
+            gameplay(meinSpieleFenster, ball);
 
-        // Hier könnte die Spiellogik hinzugefügt werden
+        } 
+            meinSpieleFenster->draw(exitButton);
+            meinSpieleFenster->draw(exitButtonText);
         
-        meinSpieleFenster.draw(exitButton);
-        meinSpieleFenster.draw(exitButtonText);
-
-        
-
-        meinSpieleFenster.display();
     }
 
     return 0;
 }
-/*
-In diesem Code erstellen wir ein Fenster und eine Schaltfläche.Dann starten wir eine Schleife, 
-um auf Ereignisse zu warten.Wenn die linke Maustaste gedrückt wird und die Position der Maus 
-innerhalb der Grenzen der Schaltfläche liegt, setzen wir gameStarted auf true.Die Schaltfläche 
-wird nur gezeichnet, wenn das Spiel nicht gestartet wurde.
 
-Dieser Code lädt eine Schriftart aus einer Datei und erstellt ein sf::Text-Objekt mit dieser Schriftart. 
-Der Text wird dann auf den Button positioniert. Beachte, dass du den Pfad zur Schriftartendatei anpassen 
-musst, damit sie korrekt geladen wird.
-*/
+void gameplay(sf::RenderWindow* meinSpieleFenster, Ball* ball) {
+    ball->update();
+    meinSpieleFenster->clear();
+    meinSpieleFenster->draw(ball->getShape());
+    meinSpieleFenster->display();
+}
