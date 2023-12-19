@@ -35,6 +35,7 @@ int main()
         std::cout << "Fehlermeldung: Schriftart Arial konnte nicht geladen werden!" << std::endl;
 
     // Start Buttontext 
+    /// neu
     Text startButtonText("Start", font);
     startButtonText.setCharacterSize(24);
     startButtonText.setFillColor(Color::Black);
